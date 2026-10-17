@@ -1,53 +1,23 @@
 package com.fei.firstapp
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.fei.firstapp.ui.theme.FirstappTheme
 
 class MainActivity : ComponentActivity() {
     private val viewModel: MainViewModel by viewModels()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { FirstappTheme { val state by viewModel.ui.collectAsState(); if (state.usage == null) LoginScreen(state, viewModel::connect) else Dashboard(state, viewModel::refresh, viewModel::logout) } }
-    }
+    override fun onCreate(savedInstanceState: Bundle?) { super.onCreate(savedInstanceState); setContent { FirstappTheme { val state by viewModel.uiState.collectAsState(); when { state.isLoading && state.user == null && !state.isGuest -> LoadingScreen(); state.user == null && !state.isGuest -> LoginScreen(state,{phone,password -> if(state.isRegistering) viewModel.register(phone,password) else viewModel.login(phone,password)},{viewModel.enterGuestMode()},{viewModel.setRegistering(!state.isRegistering)}); else -> HomeScreen(state,{viewModel.logout()},{startActivity(Intent(this@MainActivity,OnlineSiteActivity::class.java))},{startActivity(Intent(this@MainActivity,AudioActivity::class.java))},{startActivity(Intent(this@MainActivity,VideoActivity::class.java))},{startActivity(Intent(this@MainActivity,CalculatorActivity::class.java))}) } } } }
 }
-
-@Composable private fun LoginScreen(state: MainUiState, onConnect: (String, String, String) -> Unit) {
-    var base by remember { mutableStateOf("https://api.huanling.icu") }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center) {
-        Text("Relay Tokens", style = MaterialTheme.typography.headlineMedium)
-        Text("中转站 Token 用量", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Spacer(Modifier.height(20.dp))
-        OutlinedTextField(base, { base = it }, label = { Text("中转站地址") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(10.dp)); OutlinedTextField(username, { username = it }, label = { Text("账号") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(10.dp)); OutlinedTextField(password, { password = it }, label = { Text("密码") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(16.dp)); Button(onClick = { onConnect(base, username, password) }, enabled = !state.isLoading, modifier = Modifier.fillMaxWidth()) { Text(if (state.isLoading) "连接中..." else "连接并读取用量") }
-        state.errorMessage?.let { Spacer(Modifier.height(12.dp)); Text(it, color = MaterialTheme.colorScheme.error) }
-    }
-}
-
-@Composable private fun Dashboard(state: MainUiState, onRefresh: () -> Unit, onLogout: () -> Unit) {
-    val usage = state.usage!!
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Column { Text("Relay Tokens", style = MaterialTheme.typography.headlineSmall); Text("中转站用量", color = MaterialTheme.colorScheme.onSurfaceVariant) }; Row { TextButton(onClick = onRefresh) { Text("刷新") }; TextButton(onClick = onLogout) { Text("退出") } } }
-        Spacer(Modifier.height(16.dp)); if (state.isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { Metric("余额", usage.balance); Metric("累计 Token", usage.totalTokens) }
-        Spacer(Modifier.height(8.dp)); Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) { Metric("今日 Token", usage.todayTokens); Metric("请求次数", usage.requests) }
-        Spacer(Modifier.height(20.dp)); Text("最近调用", style = MaterialTheme.typography.titleMedium); Spacer(Modifier.height(8.dp))
-        if (usage.rows.isEmpty()) Text("暂无调用记录", color = MaterialTheme.colorScheme.onSurfaceVariant) else LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) { items(usage.rows) { row -> ListItem(headlineContent = { Text(row.model) }, supportingContent = { Text(row.time) }, trailingContent = { Text(row.tokens.toString() + " token") }) } }
-        state.errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-    }
-}
-@Composable private fun RowScope.Metric(label: String, value: Long) { Card(Modifier.weight(1f)) { Column(Modifier.padding(14.dp)) { Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant); Text(value.toString(), style = MaterialTheme.typography.titleLarge) } } }
+@Composable private fun LoadingScreen(){Column(Modifier.fillMaxSize(),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){CircularProgressIndicator();Spacer(Modifier.height(12.dp));Text("正在连接服务器...")}}
+@Composable private fun LoginScreen(state:MainUiState,onSubmit:(String,String)->Unit,onGuest:()->Unit,onToggleMode:()->Unit){var phone by remember{mutableStateOf("")};var password by remember{mutableStateOf("")};Scaffold{padding->Column(Modifier.fillMaxSize().padding(padding).padding(24.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text(if(state.isRegistering)"注册 Firstapp" else "登录 Firstapp",style=MaterialTheme.typography.headlineSmall);Spacer(Modifier.height(20.dp));OutlinedTextField(phone,{phone=it},label={Text("手机号")},singleLine=true);Spacer(Modifier.height(12.dp));OutlinedTextField(password,{password=it},label={Text("密码（至少 6 位）")},singleLine=true);Spacer(Modifier.height(16.dp));Button(enabled=!state.isLoading,onClick={onSubmit(phone,password)}){Text(if(state.isLoading)"请求中..." else if(state.isRegistering)"注册" else "登录")};Button(enabled=!state.isLoading,onClick=onToggleMode){Text(if(state.isRegistering)"已有账号，去登录" else "没有账号，去注册")};Button(enabled=!state.isLoading,onClick=onGuest){Text("游客进入（仅计算器）")};state.errorMessage?.let{Spacer(Modifier.height(12.dp));Text(it,color=MaterialTheme.colorScheme.error)}}}}
+@Composable private fun HomeScreen(state:MainUiState,onLogout:()->Unit,onOpenOnlineSite:()->Unit,onOpenAudio:()->Unit,onOpenVideo:()->Unit,onOpenCalculator:()->Unit){Scaffold{padding->Column(Modifier.fillMaxSize().padding(padding).padding(24.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){Text("欢迎使用 Firstapp",style=MaterialTheme.typography.headlineSmall);Spacer(Modifier.height(12.dp));if(state.isGuest)Text("当前为游客模式")else{Text("账号：${state.user?.phone}");Text(if(state.permissions?.vip==true)"VIP 用户" else "普通用户")};Spacer(Modifier.height(20.dp));Button(onClick=onOpenCalculator){Text("打开计算器")};if(!state.isGuest){Button(onClick=onOpenAudio){Text("音乐")};Button(onClick=onOpenVideo){Text("视频")}};if(state.permissions?.vip==true)Button(onClick=onOpenOnlineSite){Text("VIP 在线网站")};Button(onClick=onLogout){Text(if(state.isGuest)"返回登录" else "退出登录")}}}}
