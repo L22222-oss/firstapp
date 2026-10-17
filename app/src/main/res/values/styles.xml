@@ -1,0 +1,28 @@
+<resources>
+    <style name="CalculatorRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="CalculatorButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">72dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:backgroundTint">#303238</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+    </style>
+
+    <style name="CalculatorButton.Operator" parent="CalculatorButton">
+        <item name="android:backgroundTint">#FF9F0A</item>
+    </style>
+
+    <style name="CalculatorButton.Zero" parent="CalculatorButton">
+        <item name="android:layout_weight">2</item>
+    </style>
+</resources>

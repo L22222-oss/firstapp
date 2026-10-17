@@ -1,0 +1,23 @@
+INFO:     127.0.0.1:3741 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60343 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60344 - "GET /api/permissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33743 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33743 - "GET /api/permissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:29703 - "GET /api/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:29703 - "GET /api/permissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:14303 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:14303 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52064 - "GET /api/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:52064 - "POST /api/auth/refresh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52064 - "GET /api/permissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:26229 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:26229 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:33820 - "GET /api/auth/login HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:33820 - "GET /api/auth/login HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:42162 - "GET /api/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:42162 - "POST /api/auth/refresh HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42162 - "GET /api/permissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:11946 - "GET /api/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:11946 - "GET /api/permissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57824 - "POST /api/auth/logout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:14370 - "GET /api/auth/register HTTP/1.1" 405 Method Not Allowed
